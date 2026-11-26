@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Availability Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="hero">
+        <div class="brand-mark">✦</div>
+        <p class="eyebrow">TEAM WORKSPACE</p>
+        <h1>Team Availability Tracker</h1>
+        <p class="subtitle">See who's available and keep your team in sync.</p>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <div>
+                <p class="eyebrow">TEAM OVERVIEW</p>
+                <h2>Availability</h2>
+                <p class="summary-text">Update a team member's status using the toggle.</p>
+            </div>
+            <div class="summary-count">
+                <strong>{{ available_count }} / {{ total_count }}</strong>
+                <span>Available now</span>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="team-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">PEOPLE</p>
+                    <h2>Team members</h2>
+                </div>
+                <span class="member-count">{{ total_count }} members</span>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Team member</th>
+                            <th>Role</th>
+                            <th class="status-heading">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>
+                                <div class="person">
+                                    <div class="avatar">{{ member.name[0] }}</div>
+                                    <strong>{{ member.name }}</strong>
+                                </div>
+                            </td>
+                            <td class="role">{{ member.role }}</td>
+                            <td class="status-cell">
+                                <div class="status-control">
+                                    <span class="status-pill {{ 'available' if member.available else 'busy' }}">
+                                        <span class="status-dot"></span>
+                                        {{ 'AVAILABLE' if member.available else 'BUSY' }}
+                                    </span>
+                                    <form method="POST" action="{{ url_for('toggle_availability', member_id=member.id) }}">
+                                        <button
+                                            type="submit"
+                                            class="toggle {{ 'on' if member.available else '' }}"
+                                            role="switch"
+                                            aria-checked="{{ 'true' if member.available else 'false' }}"
+                                            aria-label="Toggle availability for {{ member.name }}">
+                                            <span></span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="footnote">Availability changes are saved automatically in the local SQLite database.</p>
+        </section>
+    </main>
+
+    <footer>Team Availability Tracker · Built with Python Flask and SQLite</footer>
+</body>
+</html>
